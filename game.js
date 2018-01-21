@@ -15,8 +15,15 @@
 // }
     'use strict';
 
-    class GameCell {
+    class ViewComponent {
+        getElement(){
+            return this._element;
+        }
+    }
+
+    class GameCell extends ViewComponent{
         constructor(){
+            super();
             this._state = 'unknown';
             this._element = document.createElement('td');
             var self = this;
