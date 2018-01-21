@@ -1,19 +1,4 @@
-// const gameElement = document.getElementById('game');
-// const row = document.createElement('tr');
-// const col1 = document.createElement('td');
-// const col2 = document.createElement('td');
-// row.appendChild(col1);
-// row.appendChild(col2);
-// gameElement.appendChild(row);
-//
-// const cells =[col1, col2];
-// for(let i =0; i<cells.length; i++) {
-//     const clickedCell = cells[i];
-//     clickedCell.addEventListener('click', function (event) {
-//         clickedCell.classList.add('clicked');
-//     });
-// }
-    'use strict';
+ 'use strict';
 
     class ViewComponent {
         constructor(){
@@ -92,13 +77,15 @@
 
     class GameModel{
         constructor(){
+            this._observers=[];
             this._cells={};
             const rowCount = 10;
             const colCount = 10;
             for(let i=0; i< rowCount; i++){
                 for(let j=0; j<colCount; j++){
                     const coordinatesText = i + '/' + j;
-                    this._cells[coordinatesText] = {hasShip: true, fireAt: false};
+                    const hasShip = (Math.random() >= 0.8);
+                    this._cells[coordinatesText] = {hasShip: hasShip, fireAt: false};
                 }
 
             }
@@ -111,8 +98,15 @@
                 return;
             }
             targetCell.fireAt = true;
-            console.log('has ship?s', targetCell.hasShip);
+            const result = targetCell.hasShip ? 'hit' : 'miss';
+            this._observers.forEach(function(observer){
+                observer('firedAt', {result,row,column});
+            })
 
+        }
+
+        addObserver(observerFunction){
+            this._observers.push(observerFunction);
         }
     }
 
@@ -124,6 +118,13 @@
     }
     board = new GameBoard(handleCellClick);
     const model = new GameModel();
+    model.addObserver(function(eventType, params){
+        switch (eventType){
+            case 'firedAt':
+                board.setStateAt(params.row, params.column, params.result);
+                break;
+        }
+    });
     controller = new GameController(model);
     gameElement.appendChild(board.getElement());
 
