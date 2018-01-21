@@ -79,14 +79,41 @@
     }
 
     class GameController{
-        constructor(boardView){
-            this._boardView = boardView;
+        constructor(boardModel){
+            this._boardModel = boardModel;
 
         }
         handleCellClick(row, column){
-            this._boardView.setStateAt(row, column,'miss');
+            this._boardModel.fireAt(row, column);
+            // this._boardView.setStateAt(row, column,'miss');
         }
 
+    }
+
+    class GameModel{
+        constructor(){
+            this._cells={};
+            const rowCount = 10;
+            const colCount = 10;
+            for(let i=0; i< rowCount; i++){
+                for(let j=0; j<colCount; j++){
+                    const coordinatesText = i + '/' + j;
+                    this._cells[coordinatesText] = {hasShip: true, fireAt: false};
+                }
+
+            }
+        }
+
+        fireAt(row, column){
+            const coordinatesText = row + '/' + column;
+            const targetCell = this._cells[coordinatesText];
+            if(targetCell.fireAt){
+                return;
+            }
+            targetCell.fireAt = true;
+            console.log('has ship?s', targetCell.hasShip);
+
+        }
     }
 
     const gameElement = document.getElementById('game');
@@ -95,10 +122,11 @@
     function handleCellClick(row, column){
         controller.handleCellClick(row, column);
     }
-    board =new GameBoard(handleCellClick);
-    controller = new GameController(board);
+    board = new GameBoard(handleCellClick);
+    const model = new GameModel();
+    controller = new GameController(model);
     gameElement.appendChild(board.getElement());
-    board.setStateAt(5,6, 'miss');
+
 
 
 
