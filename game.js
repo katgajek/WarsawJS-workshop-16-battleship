@@ -27,13 +27,13 @@
     }
 
     class GameCell extends ViewComponent{
-        constructor(){
+        constructor(handleCellClick, row, column){
             super();
             this._state = 'unknown';
             this._element = document.createElement('td');
             const self = this;
             this._element.addEventListener('click', function(){
-                self.setState('miss');
+               handleCellClick(row, column);
             })
         }
         setState(state){
@@ -50,27 +50,55 @@
         }
     }
 
-    class GameBoard extends ViewComponent{
-        constructor(){
+    class GameBoard extends ViewComponent {
+        constructor(handleCellClick) {
             super();
             this._element = document.createElement('table');
+            this._cells = {};
             const rowCount = 10;
             const colCount = 10;
-            for(let i=0; i<rowCount; i++) {
+            for (let i = 0; i < rowCount; i++) {
                 const row = document.createElement('tr');
 
                 for (let j = 0; j < colCount; j++) {
-                    const col = new GameCell();
-                    row.appendChild(col.getElement());
+                    const cell = new GameCell(handleCellClick, i, j);
+                    row.appendChild(cell.getElement());
+                    const coordinatesText = i + 'x' + j;
+                    this._cells[coordinatesText] = cell;
                 }
                 this._element.appendChild(row);
             }
         }
+
+        setStateAt(row, column, state) {
+
+                const coordinatesText = row + 'x' + column;
+                this._cells[coordinatesText].setState(state);
+
+        }
+    }
+
+    class GameController{
+        constructor(boardView){
+            this._boardView = boardView;
+
+        }
+        handleCellClick(row, column){
+            this._boardView.setStateAt(row, column,'miss');
+        }
+
     }
 
     const gameElement = document.getElementById('game');
-    const board = new GameBoard();
+    let board;
+    let controller;
+    function handleCellClick(row, column){
+        controller.handleCellClick(row, column);
+    }
+    board =new GameBoard(handleCellClick);
+    controller = new GameController(board);
     gameElement.appendChild(board.getElement());
+    board.setStateAt(5,6, 'miss');
 
 
 
